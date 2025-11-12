@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  nodered:
+    build: .
+    container_name: sensor-platform
+    ports:
+      - "1880:1880"
+    restart: always
+    volumes:
+      - ./data:/data
