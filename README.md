@@ -32,6 +32,7 @@ D --> E[Kibana Dashboard]
 
 ### 1️⃣ Build and Push Image
 
+if u want to pull the repositry from docker use this cmd - docker pull archit05931/sensor-platform
 ```bash
 docker build -t archit05931/sensor-platform:latest .
 docker push archit05931/sensor-platform:latest
