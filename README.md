@@ -1,9 +1,3 @@
-Perfect ✅ — that means you have a **combined Kubernetes manifest file** (`sensor-platform-stack.yml`) which deploys **Node-RED**, **Elasticsearch**, and **Kibana** together.
-
-Here’s your **final, improved `README.md`** with that change integrated 👇
-
----
-
 # 🧠 Sensor Platform – Real-Time Industrial IoT Monitoring
 
 This project integrates **Node-RED**, **Elasticsearch**, and **Kibana** into a unified industrial IoT data platform.
