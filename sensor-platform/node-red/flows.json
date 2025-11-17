@@ -85,25 +85,27 @@
         "method": "POST",
         "ret": "obj",
         "paytoqs": "ignore",
-        "url": "http://localhost:9200/sensor_data/_doc",
+        "url": "{{{url}}}",
         "tls": "",
         "persist": false,
         "proxy": "",
         "insecureHTTPParser": false,
-        "authType": "basic",
+        "authType": "",
         "senderr": false,
         "headers": [
             {
                 "keyType": "Content-Type",
                 "keyValue": "",
-                "valueType": "other",
-                "valueValue": "application/json"
+                "valueType": "application/json",
+                "valueValue": ""
             }
         ],
         "x": 1370,
         "y": 380,
         "wires": [
-            []
+            [
+                "11a0051f76de77fc"
+            ]
         ]
     },
     {
@@ -111,7 +113,7 @@
         "type": "function",
         "z": "0b9edc73aec51869",
         "name": "http fun",
-        "func": "let data = msg.payload;\n\n// 1️⃣ Safety check — must not be raw IO-Link data\nif (data.data && data.data.value) {\n    node.warn(\"Received raw IO-Link data — decoding function not applied yet.\");\n    return null;\n}\n\n// 2️⃣ Validate decoded data\nif (!data.sensor_type) {\n    node.warn(\"No sensor_type field found — cannot route data.\");\n    return null;\n}\n\n// 3️⃣ Configure Elasticsearch endpoint based on sensor type\nlet indexName = \"sensor_data\";  // default index\n\nif (data.sensor_type === \"vibration\") {\n    indexName = \"vibration_data\";\n} else if (data.sensor_type === \"ultrasonic\") {\n    indexName = \"ultrasonic_data\";\n}\n\n// 4️⃣ Build Elasticsearch HTTP request\nmsg.method = \"POST\";\nmsg.url = `http://localhost:9200/${indexName}/_doc`;\nmsg.headers = { \"Content-Type\": \"application/json\" };\nmsg.payload = data;\n\n// Log what’s being sent (for debugging)\nnode.warn(`Sending ${data.sensor_type} data to index: ${indexName}`);\n\nreturn msg;\n",
+        "func": "let data = msg.payload;\n\n// 1️⃣ Safety check — must not be raw IO-Link data\nif (data.data && data.data.value) {\n    node.warn(\"Received raw IO-Link data — decoding function not applied yet.\");\n    return null;\n}\n\n// 2️⃣ Validate decoded data\nif (!data.sensor_type) {\n    node.warn(\"No sensor_type field found — cannot route data.\");\n    return null;\n}\n\n// 3️⃣ Configure Elasticsearch index based on sensor type\nlet indexName = \"sensor_data\";  // default index\n\nif (data.sensor_type === \"vibration\") {\n    indexName = \"vibration_data\";\n} else if (data.sensor_type === \"ultrasonic\") {\n    indexName = \"ultrasonic_data\";\n}\n\n// 4️⃣ Build Elasticsearch HTTP request\nmsg.method = \"POST\";\nmsg.url = `http://elasticsearch:9200/${indexName}/_doc`;   // IMPORTANT: use service name inside docker\nmsg.headers = { \"Content-Type\": \"application/json\" };\nmsg.payload = data;\n\n// Log what’s being sent (for debugging)\nnode.warn(`Sending ${data.sensor_type} data → index: ${indexName}`);\n\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -207,6 +209,22 @@
         "statusType": "auto",
         "x": 750,
         "y": 160,
+        "wires": []
+    },
+    {
+        "id": "11a0051f76de77fc",
+        "type": "debug",
+        "z": "0b9edc73aec51869",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1490,
+        "y": 460,
         "wires": []
     }
 ]
