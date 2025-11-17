@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodered
+  labels:
+    app: nodered
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodered
+  template:
+    metadata:
+      labels:
+        app: nodered
+    spec:
+      containers:
+      - name: nodered
+        image: archit05931/sensor-platform:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 1880
+        env:
+        - name: FLOWS_FILE
+          value: "/data/flows.json"
+        - name: NODE_RED_USERNAME
+          value: ""
+        volumeMounts:
+        - name: nodered-data
+          mountPath: /data
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+      volumes:
+      - name: nodered-data
+        persistentVolumeClaim:
+          claimName: nodered-pvc
