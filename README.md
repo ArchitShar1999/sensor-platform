@@ -89,7 +89,7 @@ kubectl port-forward service/kibana-service 30081:5601
 | Elasticsearch | [http://localhost:30082](http://localhost:30082) |
 | Kibana        | [http://localhost:30081](http://localhost:30081) |
 
-make change in node-red in last http-reqest set url- POST
+make change in node-red in last http-request set url- POST
 url: http://elasticsearch-service:9200/<index-name>/_doc
 
 ---
