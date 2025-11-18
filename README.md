@@ -61,10 +61,10 @@ docker-compose up -d
 Use the combined manifest file:
 
 ```bash
-kubectl apply -f .\sensor-platform-stack.yml
+kubectl apply -f K8\
 ```
 
-*(Windows PowerShell – use `./sensor-platform-stack.yml` on Linux/Mac)*
+*(Windows PowerShell – use `ALL FILES INSIDE K8 FOLDER` on Linux/Mac)*
 
 ### 2️⃣ Verify the deployment
 
@@ -94,23 +94,6 @@ url: http://elasticsearch-service:9200/<index-name>/_doc
 
 ---
 
-## 🔧 Test Elasticsearch Connection
-
-After Elasticsearch is up, verify with a test request:
-
-### 🪟 PowerShell
-
-```powershell
-Invoke-RestMethod -Uri "http://localhost:9200/sensor-data/_doc" -Method POST -Body '{"test":"ok"}' -ContentType "application/json"
-```
-
-### 🐧 Linux/macOS
-
-```bash
-curl -X POST "http://localhost:9200/sensor-data/_doc" \
--H "Content-Type: application/json" \
--d '{"test":"ok"}'
-```
 
 ✅ You should receive a response with `_id` confirming successful indexing.
 
