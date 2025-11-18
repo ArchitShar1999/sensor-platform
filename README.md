@@ -1,147 +1,151 @@
-# 🧠 Sensor Platform – Real-Time Industrial IoT Monitoring
+🧠 Sensor Platform – Real-Time Industrial IoT Monitoring
 
-This project integrates **Node-RED**, **Elasticsearch**, and **Kibana** into a unified industrial IoT data platform.
-It collects real-time data from **IO-Link vibration** and **ultrasonic sensors**, decodes them, and visualizes the results using **Kibana dashboards** — all containerized with **Docker** and **Kubernetes**.
+This project integrates Node-RED, Elasticsearch, and Kibana into a unified Industrial IoT data pipeline.
+It collects real-time data from IFM IO-Link vibration (VVB001) and ultrasonic (UGT594) sensors through IO-Link master AL1306, decodes hex payloads, and visualizes metrics in Kibana dashboards.
 
----
+All services run using Docker or Kubernetes for full isolation and scalability.
 
-## 🚀 Features
+🚀 Features
 
-* 🌐 **Node-RED**: Low-code IoT flow automation
-* ⚙️ **Custom decoder** for IO-Link hex sensor data
-* 📦 **Elasticsearch**: Time-series data storage and indexing
-* 📊 **Kibana**: Analytics and dashboards
-* ☸️ **Kubernetes-ready**: Runs on Docker Desktop or Cloud
-* 🔄 **End-to-end**: Sensor → Node-RED → Elasticsearch → Kibana
+🌐 Node-RED – Low-code IoT flow automation
 
----
+⚙️ Custom decoders for IO-Link 20-byte vibration sensor data & ultrasonic distance data
 
-## 🧩 Architecture Overview
+📦 Elasticsearch – Time-series indexing & fast search
 
-```mermaid
-graph TD
-A[IO-Link Sensors] --> B[Node-RED]
-B --> C[Decode HEX → JSON]
-C --> D[Elasticsearch]
-D --> E[Kibana Dashboard]
-```
+📊 Kibana – Real-time dashboards and analytics
 
----
+☸️ Kubernetes Ready – Deployable on Docker Desktop, EKS, AKS, GKE
 
-## 🐳 Docker Deployment
+🔄 Complete Pipeline: Sensor → Node-RED → Elasticsearch → Kibana
 
-### 1️⃣ Build and Push Image
+🧩 Architecture Overview
+IO-Link Sensors (VVB001, UGT594)
+        ↓
+     AL1306 IO-Link Master
+        ↓
+      Node-RED
+        ↓
+  Elasticsearch (sensor-data index)
+        ↓
+        Kibana (Dashboards)
 
-if u want to pull the repositry from docker use this cmd - docker pull archit05931/sensor-platform
-```bash
+🐳 Docker Deployment
+1️⃣ Pull or Build the Docker Image
+Pull directly from Docker Hub:
+docker pull archit05931/sensor-platform
+
+Build locally:
 docker build -t archit05931/sensor-platform:latest .
 docker push archit05931/sensor-platform:latest
-```
 
-### 2️⃣ Start the full stack
-
-```bash
+2️⃣ Start the Full Stack
 docker-compose up -d
-```
 
-### 3️⃣ Access Services
+3️⃣ Access Services
+Service	URL	Port
+Node-RED	http://localhost:1880
+	1880
+Elasticsearch	http://localhost:9200
+	9200
+Kibana	http://localhost:5601
+	5601
+☸️ Kubernetes Deployment
+1️⃣ Apply all manifests
 
-| Service       | URL                                            | Port |
-| ------------- | ---------------------------------------------- | ---- |
-| Node-RED      | [http://localhost:1880](http://localhost:1880) | 1880 |
-| Elasticsearch | [http://localhost:9200](http://localhost:9200) | 9200 |
-| Kibana        | [http://localhost:5601](http://localhost:5601) | 5601 |
+(Use all files inside the K8 folder)
 
----
+kubectl apply -f K8/
 
-## ☸️ Kubernetes Deployment
-
-### 1️⃣ Apply all services at once
-
-Use the combined manifest file:
-
-```bash
-kubectl apply -f K8\
-```
-
-*(Windows PowerShell – use `ALL FILES INSIDE K8 FOLDER` on Linux/Mac)*
-
-### 2️⃣ Verify the deployment
-
-```bash
+2️⃣ Verify Deployment
 kubectl get pods -o wide
 kubectl get svc
-```
 
-### 3️⃣ Port-forward all services for local access
-
-```bash
+3️⃣ Port Forward for Local Access
 kubectl port-forward service/nodered-service 30080:1880
 kubectl port-forward service/elasticsearch-service 30082:9200
 kubectl port-forward service/kibana-service 30081:5601
-```
 
-### 4️⃣ Open in Browser
+4️⃣ Open Services
+Service	URL
+Node-RED	http://localhost:30080
 
-| Service       | URL                                              |
-| ------------- | ------------------------------------------------ |
-| Node-RED      | [http://localhost:30080](http://localhost:30080) |
-| Elasticsearch | [http://localhost:30082](http://localhost:30082) |
-| Kibana        | [http://localhost:30081](http://localhost:30081) |
+Elasticsearch	http://localhost:30082
 
-make change in node-red in last http-request set url- POST
-url: http://elasticsearch-service:9200/<index-name>/_doc
+Kibana	http://localhost:30081
 
----
+⚠️ Important (Node-RED → Elasticsearch):
+In the last HTTP request node, set:
+
+POST http://elasticsearch-service:9200/sensor-data/_doc
 
 
-✅ You should receive a response with `_id` confirming successful indexing.
+You should receive a response containing "_id" confirming successful indexing.
 
----
+⚙️ Node-RED Flow Summary
+✔️ Reads sensor data from IO-Link Master (192.168.1.10)
+✔️ Decodes:
 
-## ⚙️ Node-RED Flow Summary
+🌀 Vibration Sensor (VVB001) – 20-byte IO-Link structured packet
 
-* Collects sensor data from **IO-Link Master** (`192.168.1.10`)
-* Decodes both:
+🌊 Ultrasonic Sensor (UGT594) – distance measurement
 
-  * 🌀 **Vibration Sensor (VVB001)**
-  * 🌊 **Ultrasonic Sensor (U2000)**
-* Sends JSON data to **Elasticsearch index: `sensor-data`**
+✔️ Sends JSON to Elasticsearch:
+http://localhost:9200/sensor-data/_doc
 
-> Elasticsearch endpoint used in Node-RED:
->
-> ```
-> http://localhost:9200/sensor-data/_doc
-> ```
+📊 Kibana Visualization Guide
 
----
+Open Kibana → http://localhost:30081
 
-## 📊 Kibana Visualization
+Go to Stack Management → Index Patterns
 
-1. Open Kibana → [http://localhost:30081](http://localhost:30081)
-2. Navigate to **Stack Management → Index Patterns**
-3. Create a new pattern:
+Create index pattern:
 
-   ```
-   sensor-data*
-   ```
-4. Go to **Discover** to see live sensor entries
-5. Build charts for temperature, vibration, or distance metrics
+sensor-data*
 
----
 
-## ☁️ Cloud and Scaling
+Open Discover to view live sensor entries
 
-* Compatible with **Docker Hub Cloud**, **AWS EKS**, **Azure AKS**, or **Google GKE**
-* Supports horizontal scaling for **Node-RED** and **Elasticsearch**
-* Future-ready for **live data ingestion**, **alerting**, and **dashboard sharing**
+Build dashboards for:
 
----
+Vibration RMS, Peak
 
-## 🧑‍💻 Author
+Ultrasonic distance
 
-**Archit Sharma**
+Temperature
+
+Health metrics
+
+☁️ Cloud & Scaling
+
+✔ Fully compatible with:
+
+Docker Hub
+
+AWS EKS
+
+Azure AKS
+
+Google GKE
+
+✔ Supports horizontal scaling:
+
+Node-RED replicas
+
+Elasticsearch data nodes
+
+✔ Future-ready for:
+
+Real-time alerts
+
+IoT edge → cloud pipelines
+
+Dashboard sharing
+
+🧑‍💻 Author
+
+Archit Sharma
 IoT Developer | Cloud & Edge Integrator
-🔗 [GitHub Repo](https://github.com/ArchitShar1999/sensor-platform)
-🔗 [Docker Hub Image](https://hub.docker.com/r/archit05931/sensor-platform)
 
+🔗 GitHub Repo
+🔗 Docker Hub Image
